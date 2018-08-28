@@ -1,0 +1,97 @@
+<html>
+   <head>
+      <title>
+         Money Podger
+      </title>
+      <style>
+         .voteBtn {
+            width: 200px;
+            text-align: center;
+            height: 25px;
+            padding-top: 8px;
+            margin-top: 20px;
+            display: none;
+         }
+         .deactiveBtn {
+            text-align: center;
+            height: 25px;
+            padding-top: 8px;
+            margin-top: 20px;
+            transition: width 1s;
+            overflow: hidden;
+         }
+         .voteBtn:hover {
+            box-shadow: 0px 0px 0px 1px black inset  
+         }
+         #podgeButton {
+            background-color: LightGreen; 
+         }
+         #killButton {
+            background-color: LightCoral;
+         }
+      </style>
+      <script>
+         function getPodgeString( s ) { 
+            resetVoteBtns()
+            var xhttp = new XMLHttpRequest();
+            xhttp.addEventListener( "load", function() {
+               var p = document.getElementById( "podgeStr" )
+               var podge = JSON.parse( this.responseText )
+               p.innerText = podge.string
+               p.setAttribute( "mongoId", podge._id.$id )
+               toggleVoteBtns( 'inline-block' )
+            } )
+            xhttp.open( "GET", "podge.php?str=" + escape( s ), true )
+            xhttp.send()
+         }
+         function checkInputString() {
+            inputText = document.getElementById( "input" ).value
+            if( inputText !== "" ) {
+               getPodgeString( inputText )
+            }
+         }
+         function resetVoteBtns() {
+            var btns = [ "podgeButton", "killButton" ]
+            for ( const btn of btns ) {
+               var div = document.getElementById( btn )
+               div.className = "voteBtn";
+               div.style.width = "200px";
+            }
+         }
+         function toggleVoteBtns( display ) {
+            var btns = [ "podgeButton", "killButton" ]
+            for ( const btn of btns ) {
+               var div = document.getElementById( btn )
+               div.style.display = display;
+            }
+         }
+         function vote( v ) {
+            var podge = document.getElementById( "podgeButton" )
+            var kill = document.getElementById( "killButton" )
+            podge.style.width = ( v == "podge" ) ? "400px" : "0px";
+            kill.style.width = ( v == "kill" ) ? "400px" : "0px";
+            podge.className = "deactiveBtn";
+            kill.className = "deactiveBtn";
+
+            var p = document.getElementById( "podgeStr" )
+            var id = p.getAttribute( "mongoId" )
+            toggleVoteBtns( 'inline-block' )
+            var xhttp = new XMLHttpRequest();
+            xhttp.open( "GET", "votePodge.php?id=" + escape( id ) + "&" + v, true )
+            xhttp.send()
+         }
+      </script>
+   </head>
+
+   <body>
+      <h1>M💰ney Podger</h1>
+      <form onsubmit="return false">
+         <p>The Money Podger knows the truth...</p> 
+         <input id="input" type="text" size="large">
+         <button focus="true" type="submit" onclick="checkInputString()">Submit</button>
+      </form>
+      <div id="podgeStr"></div>
+      <div class="voteBtn" id="podgeButton" onclick="vote( 'podge' )">podge</div>
+      <div class="voteBtn" id="killButton" onclick="vote( 'kill' )">kill</div>
+   </body>
+</html>
